@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class AddRecipePage extends StatefulWidget {
@@ -35,11 +36,63 @@ class _AddRecipePageState extends State<AddRecipePage> {
     });
   }
 
-void _removeField(List<TextEditingController> text_controller, int index) {
+  void _removeField(List<TextEditingController> text_controller, int index) {
+      setState(() {
+        text_controller.removeAt(index);
+      });
+    }
+
+  void _submitError(String message) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    String errorMessage = "Error: $message";
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(errorMessage),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+
+
+  void _submitRecipe() async {
     setState(() {
-      text_controller.removeAt(index);
+
+      if (_nameController.text.isEmpty) {
+        _submitError('Please enter a name');
+        return;
+      }
+      if (_cookingTimeController.text.isEmpty) {
+        _submitError('Please enter cooking time');
+        return;
+      }
+      if (_ingredientsControllers.isEmpty) {
+        _submitError('Please enter ingredients');
+        return;
+      }
+      if (_stepsControllers.isEmpty) {
+        _submitError('Please enter steps');
+        return;
+      }
+
+      CollectionReference recipes = FirebaseFirestore.instance.collection('recipes');
+      recipes.add({
+        'name': _nameController.text,
+        'description': _descriptionController.text,
+        'cookingTime': int.parse(_cookingTimeController.text),
+        'ingredients': _ingredientsControllers.map((controller) => controller.text).toList(),
+        'steps': _stepsControllers.map((controller) => controller.text).toList(),
+      });
+
+      // Clear the text fields
+      _nameController.clear();
+      _cookingTimeController.clear();
+      _descriptionController.clear();
+      _ingredientsControllers.clear();
+      _stepsControllers.clear();
+
     });
   }
+
 
   Widget _buildField(List<TextEditingController> text_controller, int index, String label) {
     return ListTile(
@@ -135,14 +188,7 @@ void _removeField(List<TextEditingController> text_controller, int index) {
                 ),
                 SizedBox(height: 5),
                 ElevatedButton(
-                  onPressed: () {
-                    print('Submit Recipe');
-                    print("name=" + _nameController.text);
-                    print("description=" + _descriptionController.text);
-                    print("cooking time=" + _cookingTimeController.text);
-                    print("ingredients=" + _ingredientsControllers.map((e) => e.text).join(","));
-                    print("steps=" + _stepsControllers.map((e) => e.text).join(","));
-                  },
+                  onPressed: () => _submitRecipe(),
                   style: ElevatedButton.styleFrom(
                     primary: Theme.of(context).colorScheme.primary,
                     onPrimary: Colors.white,
