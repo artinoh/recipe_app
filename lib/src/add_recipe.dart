@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import '../utils/app_bar.dart';
 
 class AddRecipePage extends StatefulWidget {
   @override
@@ -115,8 +116,12 @@ class _AddRecipePageState extends State<AddRecipePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Add New Recipe"),
+      appBar: CustomAppBar(
+        title: 'Add Recipe',
+        showAccountButton: true,
+        showSavedRecipesButton: true,
+        showLogoutButton: true,
+        showBackButton: true,
       ),
       body: SingleChildScrollView(
         child: SingleChildScrollView(

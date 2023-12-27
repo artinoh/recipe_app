@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:recipe_app/src/user_data.dart';
 import 'search_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../utils/app_bar.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key, required this.title});
@@ -99,7 +100,7 @@ class _LoginPageState extends State<LoginPage> {
       // Navigate to the next screen if login is successful
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => SearchPage(title: 'Crave: Recipe Search')),
+        MaterialPageRoute(builder: (context) => SearchPage(title: 'Crave')),
       );
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
@@ -169,12 +170,9 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme
-            .of(context)
-            .colorScheme
-            .primary,
-        title: Text(widget.title),
+      appBar: CustomAppBar(
+        title: widget.title,
+        showBackButton: false,
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),

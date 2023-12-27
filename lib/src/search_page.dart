@@ -7,6 +7,7 @@ import 'login_page.dart';
 import 'recipe_page.dart';
 import 'saved_recipes_page.dart';
 import 'user_data.dart';
+import '../utils/app_bar.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key, required this.title});
@@ -37,21 +38,12 @@ class _SearchPageState extends State<SearchPage> {
 
   void _filterSearchResults() {
     setState(() {
-      print("pre-filter");
-      for (var recipe in _searchResults) {
-        recipe.printRecipe();
-      }
       for (var term in _searchTerms) {
         _searchResults.retainWhere((recipe) => recipe.ingredients.contains(term.toLowerCase()));
       }
 
       for (var allergy in UserData().allergies ?? []) {
         _searchResults.removeWhere((recipe) => recipe.ingredients.contains(allergy));
-      }
-
-      print("post-filter");
-      for (var recipe in _searchResults) {
-        recipe.printRecipe();
       }
     });
   }
@@ -83,8 +75,6 @@ class _SearchPageState extends State<SearchPage> {
           List<String> steps = List<String>.from(doc["steps"]);
 
           _searchResults.add(Recipe(doc["name"], doc["description"], doc["cookingTime"], ingredients, steps));
-          // Debug print, if needed
-          // print("added recipe: ${doc["name"]}");
         }
       });
 
@@ -163,32 +153,11 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme
-            .of(context)
-            .colorScheme
-            .primary,
-        title: const Text("Search"),
-        actions: [
-          IconButton(
-            onPressed: () => _goToSavedRecipes(),
-            icon: const Icon(Icons.bookmark),
-          ),
-          IconButton(
-            onPressed: () => _goToAccountPage(),
-            icon: const Icon(Icons.account_circle),
-          ),
-          IconButton(
-            onPressed: () {
-              FirebaseAuth.instance.signOut();
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginPage(title: 'Crave: Login')),
-              );
-            },
-            icon: const Icon(Icons.logout),
-          ),
-        ],
+      appBar: CustomAppBar(
+        title: widget.title,
+        showAccountButton: true,
+        showSavedRecipesButton: true,
+        showLogoutButton: true,
       ),
       body: Column(
         children: [

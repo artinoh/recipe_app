@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'user_data.dart';
 
 class Recipe
 {
@@ -10,19 +11,6 @@ class Recipe
 
   Recipe(this.name, this.description, this.cookingTime, this.ingredients, this.steps);
 
-  void printRecipe() {
-    print('Name: $name');
-    print('Description: $description');
-    print('Cooking time: $cookingTime');
-    print('Ingredients:');
-    for (var ingredient in ingredients) {
-      print(ingredient);
-    }
-    print('Steps:');
-    for (var step in steps) {
-      print(step);
-    }
-  }
 }
 
 class RecipePage extends StatefulWidget {
@@ -37,16 +25,33 @@ class RecipePage extends StatefulWidget {
 class _RecipePageState extends State<RecipePage> {
   bool _isSaved = false;
 
+  void updateFireStore() async {
+    setState(() {
+      UserData().updateSavedRecipes(widget.recipe.name, _isSaved);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _checkSavedStatus();
+  }
+
+  void _checkSavedStatus() async {
+    bool isSaved = await UserData().savedRecipes?.contains(widget.recipe.name) ?? false;
+    if (mounted) {
+      setState(() {
+        _isSaved = isSaved;
+      });
+    }
+  }
+
   void _toggleSaved() {
     // save recipe to firestore
     //print('saving recipe');
     setState(() {
       _isSaved = !_isSaved;
-      if (_isSaved) {
-        print('saved recipe');
-      } else {
-        print('unsaved recipe');
-      }
+      updateFireStore();
     });
 
   }

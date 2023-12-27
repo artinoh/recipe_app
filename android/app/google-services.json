@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "754570402974",
+    "project_id": "recipeapp-d6559",
+    "storage_bucket": "recipeapp-d6559.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:754570402974:android:4b5fae04063e38c268ef8f",
+        "android_client_info": {
+          "package_name": "edu.cpp.cs4750.recipe_app.recipe_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDm1dbv7ccCfYwNS0qfjNQyiSx6aefEuIc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

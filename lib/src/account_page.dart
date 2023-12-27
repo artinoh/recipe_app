@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'login_page.dart';
 import 'user_data.dart';
+import '../utils/app_bar.dart';
 
 class AccountPage extends StatefulWidget {
   @override
@@ -27,21 +28,14 @@ class _AccountPageState extends State<AccountPage> {
     _nameController.text = UserData().name ?? '';
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        title: const Text("Account Settings"),
-        actions: [
-          IconButton(
-            onPressed: () {
-              auth.signOut();
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginPage(title: 'Crave: Login')),
-              );
-            },
-            icon: const Icon(Icons.logout),
-          )
-        ],
+      appBar: CustomAppBar(
+        title: 'Account',
+        showAccountButton: false,
+        showLogoutButton: true,
+        showSavedRecipesButton: true,
+        showBackButton: true,
+        toggleSavedButton: false,
+        onToggleSaved: () {},
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
