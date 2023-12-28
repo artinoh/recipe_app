@@ -50,8 +50,7 @@ class _LoginPageState extends State<LoginPage> {
 
   void _setUserData(String email) async {
     try {
-      print('Getting user data for $email');
-      UserData().email = email;
+      UserData().email = email.toLowerCase();
       var querySnapshot = await FirebaseFirestore.instance
           .collection('users')
           .where('email', isEqualTo: email)

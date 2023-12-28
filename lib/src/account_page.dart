@@ -24,13 +24,57 @@ class _AccountPageState extends State<AccountPage> {
     super.dispose();
   }
 
+  Future<void> _removeAllergy(String allergy) async {
+    try {
+      await UserData().removeAllergy(allergy);
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Allergy removed'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+    _allergiesController.clear();
+  }
+
+  Future<void> _addAllergy(String allergy) async {
+    try {
+      await UserData().addAllergy(allergy);
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Allergy added'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+    _allergiesController.clear();
+  }
+
   Future<void> _updateUserData() async {
     try {
       await UserData().updateName(_nameController.text);
       // Update other fields if you have more
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('User data updated'),
           backgroundColor: Colors.green,
         ),
@@ -49,7 +93,7 @@ class _AccountPageState extends State<AccountPage> {
   @override
   Widget build(BuildContext context) {
     _nameController.text = UserData().name ?? '';
-
+    List<String> allergies = UserData().allergies ?? [];
     return Scaffold(
       appBar: CustomAppBar(
         title: '',
@@ -67,10 +111,11 @@ class _AccountPageState extends State<AccountPage> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 2.0),
                 child: Text(
-                  'Account',
+                  'Account Details',
                   style: Theme.of(context).textTheme.headline6,
                 ),
               ),
+              Divider(),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 2.0),
                 child: Text(
@@ -78,26 +123,63 @@ class _AccountPageState extends State<AccountPage> {
                   style: Theme.of(context).textTheme.headline6,
                 ),
               ),
+              SizedBox(height: 16),
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Name',
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.edit),
+                    onPressed: () {
+                      setState(() {
+                        _updateUserData();
+                      });
+                    },
+                  ),
                 ),
+              ),
+              Divider(),
+              Text(
+                'Allergies',
+                style: Theme.of(context).textTheme.headline6,
+              ),
+              for (var allergy in allergies)
+                ListTile(
+                  title: Text(allergy),
+                  trailing: IconButton(
+                    icon: Icon(Icons.delete),
+                    onPressed: () {
+                      setState(() {
+                        _removeAllergy(allergy);
+                      });
+                    },
+                  ),
+                ),
+              TextFormField(
+                controller: _allergiesController,
+                decoration: InputDecoration(
+                  labelText: 'Add an allergy',
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.add),
+                    onPressed: () {
+                      setState(() {
+                        _addAllergy(_allergiesController.text);
+                      });
+                    },
+                  ),
+                ),
+                onFieldSubmitted: (value) {
+                  setState(() {
+                    _addAllergy(value);
+                  });
+                },
               ),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: BottomAppBar(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: CustomButton(
-              text: 'Save',
-              onPressed: _updateUserData
-              ),
-          ),
-        ),
       );
   }
 }

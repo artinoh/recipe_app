@@ -38,9 +38,9 @@ class _SavedRecipesPageState extends State<SavedRecipesPage> {
   }
 
 
-
   @override
   Widget build(BuildContext context) {
+    _loadSavedRecipes();
     return Scaffold(
       appBar: CustomAppBar(
         title: '',

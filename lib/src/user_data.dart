@@ -22,8 +22,18 @@ class UserData {
     return _instance;
   }
 
-  Future<void> updateAllergies(List<String> allergies) async {
-    this.allergies = allergies;
+  Future<void> addAllergy(String allergy) async {
+    allergies?.add(allergy);
+    FirebaseFirestore.instance.collection('users').where('email', isEqualTo: email).limit(1).get().then((querySnapshot) {
+      if (querySnapshot.docs.isNotEmpty) {
+        var documentSnapshot = querySnapshot.docs.first;
+        documentSnapshot.reference.update({'allergies': allergies});
+      }
+    });
+  }
+
+  Future<void> removeAllergy(String allergy) async {
+    allergies?.remove(allergy);
     FirebaseFirestore.instance.collection('users').where('email', isEqualTo: email).limit(1).get().then((querySnapshot) {
       if (querySnapshot.docs.isNotEmpty) {
         var documentSnapshot = querySnapshot.docs.first;

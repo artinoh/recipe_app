@@ -43,6 +43,7 @@ class _SearchPageState extends State<SearchPage> {
         _searchResults.retainWhere((recipe) => recipe.ingredients.contains(term.toLowerCase()));
       }
 
+
       for (var allergy in UserData().allergies ?? []) {
         _searchResults.removeWhere((recipe) => recipe.ingredients.contains(allergy));
       }

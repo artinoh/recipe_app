@@ -1,7 +1,10 @@
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../utils/app_bar.dart';
 import '../utils/custom_button.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 class AddRecipePage extends StatefulWidget {
   @override
@@ -16,6 +19,8 @@ class _AddRecipePageState extends State<AddRecipePage> {
   final TextEditingController _descriptionController = TextEditingController();
   List<TextEditingController> _ingredientsControllers = [TextEditingController()];
   List<TextEditingController> _stepsControllers = [TextEditingController()];
+  String? _imageUrl;
+  XFile? _imageFile;
 
   @override
   void dispose() {
@@ -30,6 +35,35 @@ class _AddRecipePageState extends State<AddRecipePage> {
       controller.dispose();
     }
     super.dispose();
+  }
+
+  Future<XFile?> _pickImage() async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    return image;
+  }
+
+  Future<String?> _uploadImage(XFile? image) async {
+    if (image == null) return null;
+
+    firebase_storage.Reference ref =
+    firebase_storage.FirebaseStorage.instance
+        .ref('uploads/')
+        .child(DateTime.now().millisecondsSinceEpoch.toString());
+
+    firebase_storage.UploadTask uploadTask = ref.putFile(File(image.path));
+
+    // Get URL
+    final url = await (await uploadTask).ref.getDownloadURL();
+    return url;
+  }
+
+  Future<void> _pickAndUploadImage() async {
+    _imageFile = await _pickImage();
+    if (_imageFile != null) {
+      _imageUrl = await _uploadImage(_imageFile);
+      setState(() {});
+    }
   }
 
   Future<void> _addNewField(List<TextEditingController> text_controller) async {
@@ -83,16 +117,25 @@ class _AddRecipePageState extends State<AddRecipePage> {
         'cookingTime': int.parse(_cookingTimeController.text),
         'ingredients': _ingredientsControllers.map((controller) => controller.text).toList(),
         'steps': _stepsControllers.map((controller) => controller.text).toList(),
+        'imageUrls': [_imageUrl],
       });
 
-      // Clear the text fields
+      _clearForm();
+
+    });
+  }
+
+  Future<void> _clearForm() async {
+    setState(() {
       _nameController.clear();
       _cookingTimeController.clear();
       _descriptionController.clear();
       _ingredientsControllers.clear();
       _stepsControllers.clear();
-
+      _imageUrl = null;
+      _imageFile = null;
     });
+
   }
 
 
@@ -182,19 +225,41 @@ class _AddRecipePageState extends State<AddRecipePage> {
                     buttonWidth: 150,
                   ),
                 ),
-                SizedBox(height: 5),
-                Center(
-                  child: CustomButton(
-                    text: 'Submit',
-                    onPressed: _submitRecipe,
-                    buttonWidth: 150,
-                  ),
+                const Text('Image:',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, )
                 ),
+                _imageFile != null
+                    ? Image.file(File(_imageFile!.path))
+                    : Text("No image selected"),
+                CustomButton(
+                  text: 'Pick Image',
+                  onPressed: _pickAndUploadImage,
+                  // ... other properties ...
+                ),
+                SizedBox(height: 5),
               ],
             ),
           ),
         ),
       ),
+      bottomNavigationBar: BottomAppBar(
+        elevation: 0,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            CustomButton(
+              onPressed: () => _submitRecipe(),
+              text: 'Submit',
+              buttonWidth: 150,
+            ),
+            CustomButton(
+              onPressed: () => _clearForm(),
+              text: 'Clear',
+              buttonWidth: 150,
+            ),
+          ],
+        ),
+      )
     );
   }
 }
