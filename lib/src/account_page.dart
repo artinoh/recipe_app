@@ -85,23 +85,19 @@ class _AccountPageState extends State<AccountPage> {
                   border: OutlineInputBorder(),
                 ),
               ),
-              const SizedBox(height: 16.0),
-              SizedBox(height: 24.0),
-              CustomButton(
-                text: 'Save',
-                onPressed: _updateUserData
-              ),
-              Divider(),
-              const ListTile(
-                title: Text('Account Preferences'),
-                subtitle: Text('Your account preferences will be listed here'),
-                // Add more preference display widgets
-              ),
-              // Add more preferences
             ],
           ),
         ),
       ),
-    );
+      bottomNavigationBar: BottomAppBar(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: CustomButton(
+              text: 'Save',
+              onPressed: _updateUserData
+              ),
+          ),
+        ),
+      );
   }
 }
