@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:recipe_app/src/user_data.dart';
 import 'search_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../utils/app_bar.dart';
+import '../utils/custom_button.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key, required this.title});
@@ -27,7 +27,7 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void _handleForgotPassword() async {
+  Future<void> _handleForgotPassword() async {
     if (_emailController.text.isEmpty) {
       _showError('Please enter your email to reset password.');
       return;
@@ -50,6 +50,8 @@ class _LoginPageState extends State<LoginPage> {
 
   void _setUserData(String email) async {
     try {
+      print('Getting user data for $email');
+      UserData().email = email;
       var querySnapshot = await FirebaseFirestore.instance
           .collection('users')
           .where('email', isEqualTo: email)
@@ -86,7 +88,7 @@ class _LoginPageState extends State<LoginPage> {
 
 
 
-  void _submitLogin() async {
+  Future<void> _submitLogin() async {
     if (!_validateCredentials()) {
       return;
     }
@@ -100,7 +102,7 @@ class _LoginPageState extends State<LoginPage> {
       // Navigate to the next screen if login is successful
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => SearchPage(title: 'Crave')),
+        MaterialPageRoute(builder: (context) => const SearchPage(title: 'Search')),
       );
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
@@ -124,7 +126,7 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
-  void _signUp() async {
+  Future<void> _signUp() async {
     if (!_validateCredentials()) {
       return;
     }
@@ -166,79 +168,71 @@ class _LoginPageState extends State<LoginPage> {
     }
     return true;
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
-        title: widget.title,
-        showBackButton: false,
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              TextFormField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  // Add more email validation logic if needed
-                  return null;
-                },
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Logo
+            Image.asset(
+              'images/crave_logo.png', // Replace with your logo asset path
+              width: 120,
+              height: 120,
+              alignment: Alignment.center,
+            ),
+            const SizedBox(height: 30),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                children: [
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: const InputDecoration(
+                      labelText: 'Email',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your email';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 16.0),
+                  TextFormField(
+                    controller: _passwordController,
+                    decoration: const InputDecoration(
+                      labelText: 'Password',
+                      border: OutlineInputBorder(),
+                    ),
+                    obscureText: true,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your password';
+                      }
+                      return null;
+                    },
+                    onFieldSubmitted: (value) {
+                      _submitLogin();
+                    },
+                  ),
+                  const Divider(),
+                  CustomButton(text: 'Login', onPressed: _submitLogin),
+                  CustomButton(text: 'Sign Up', onPressed: _signUp),
+                  CustomButton(text: 'Forgot Password', onPressed: _handleForgotPassword),
+                ],
               ),
-              SizedBox(height: 16.0),
-              TextFormField(
-                controller: _passwordController,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
-                  }
-                  // Add more password validation logic if needed
-                  return null;
-                },
-                onFieldSubmitted: (value) {
-                  _submitLogin();
-                },
-              ),
-              SizedBox(height: 24.0),
-              ElevatedButton(
-                onPressed: () {
-                  _submitLogin();
-                },
-                child: Text('Login'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  _signUp();
-                },
-                child: Text('Sign Up'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  _handleForgotPassword();
-                },
-                child: Text('Forgot Password'),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
+
+
 }

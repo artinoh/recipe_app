@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../src/account_page.dart'; // Import your AccountPage
-import '../src/saved_recipes_page.dart'; // Import your SavedRecipesPage
+import '../src/account_page.dart';
+import '../src/saved_recipes_page.dart';
 import '../src/login_page.dart';
+import '../src/add_recipe.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -10,20 +11,21 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showAccountButton;
   final bool showSavedRecipesButton;
   final bool showLogoutButton;
-  final bool toggleSavedButton;
-  final VoidCallback? onToggleSaved;
   final String leadingImage;
+  final bool useLogo;
+  final bool showAddRecipeButton;
 
-  CustomAppBar({
+
+  CustomAppBar({super.key,
     required this.title,
     this.actions,
     this.showBackButton = false,
     this.showAccountButton = false,
     this.showSavedRecipesButton = false,
     this.showLogoutButton = false,
-    this.toggleSavedButton = false,
-    this.onToggleSaved,
-    this.leadingImage = "images/crave_logo.png"
+    this.leadingImage = "images/crave_icon.png",
+    this.useLogo = true,
+    this.showAddRecipeButton = false,
   });
 
   @override
@@ -33,6 +35,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     if (showBackButton) {
       allActions.add(IconButton(
         icon: const Icon(Icons.arrow_back),
+        color: Colors.white,
         onPressed: () => Navigator.of(context).pop(),
       ));
     }
@@ -40,6 +43,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     if (showAccountButton) {
       allActions.add(IconButton(
         icon: const Icon(Icons.account_circle),
+        color: Colors.white,
         onPressed: () => Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => AccountPage()),
@@ -50,6 +54,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     if (showSavedRecipesButton) {
       allActions.add(IconButton(
         icon: const Icon(Icons.bookmark),
+        color: Colors.white,
         onPressed: () => Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const SavedRecipesPage()),
@@ -57,18 +62,21 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       ));
     }
 
-    if (toggleSavedButton) {
+    if (showAddRecipeButton) {
       allActions.add(IconButton(
-        icon: const Icon(Icons.bookmark_border),
-        onPressed: () {
-          onToggleSaved?.call();
-        },
+        icon: const Icon(Icons.add),
+        color: Colors.white,
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => AddRecipePage()),
+        ),
       ));
     }
 
     if (showLogoutButton) {
       allActions.add(IconButton(
         icon: const Icon(Icons.logout),
+        color: Colors.white,
         onPressed: () {
           // Add your logout logic here
           Navigator.pushReplacement(
@@ -79,19 +87,25 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       ));
     }
 
-    Widget leadingWidget = Padding(
-      padding: EdgeInsets.all(2.0), // Add padding if needed
-      child: Image.asset(
-        leadingImage,
-        width: 500, // Adjust the width as needed
-        height: 50, // Adjust the height as needed
-      ),
-    );
+    Widget? leadingWidget;
+    if (useLogo) {
+      leadingWidget = Padding(
+        padding: const EdgeInsets.all(0), // Adjust padding as needed
+        child: Image.asset(
+          leadingImage,
+          width: 500,
+          height: 400,
+        ),
+      );
+    }
+
+
 
     return AppBar(
       backgroundColor: Theme.of(context).colorScheme.primary,
-      leading: leadingWidget,
-      title: Text(title),
+      leading: useLogo ? leadingWidget : null,
+      leadingWidth: useLogo ? 100 : null,
+      title: Text(title, style: TextStyle(color: Colors.white)),
       actions: allActions,
     );
   }

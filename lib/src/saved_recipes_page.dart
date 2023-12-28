@@ -43,38 +43,62 @@ class _SavedRecipesPageState extends State<SavedRecipesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        title: 'Saved Recipes',
+        title: '',
         showAccountButton: true,
         showLogoutButton: true,
         showSavedRecipesButton: false,
         showBackButton: true,
-        toggleSavedButton: false,
-        onToggleSaved: () {},
       ),
-      body: FutureBuilder<List<Recipe>>(
-        future: UserData().getSavedRecipes(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else if (snapshot.hasData) {
-            return ListView.builder(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                Recipe recipe = snapshot.data![index];
-                return ListTile(
-                  title: Text(recipe.name),
-                  subtitle: Text(recipe.description),
-                  onTap: () => _goToRecipePage(recipe),
-                );
+      body: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.all(1), // Add padding for aesthetics
+            child: Text(
+              'Saved Recipes',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Divider(),
+          Expanded(
+            child: FutureBuilder<List<Recipe>>(
+              future: UserData().getSavedRecipes(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else if (snapshot.hasData) {
+                  return ListView.builder(
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (context, index) {
+                      Recipe recipe = snapshot.data![index];
+                      return ListTile(
+                        title: Text(recipe.name),
+                        subtitle: Text(recipe.description),
+                        onTap: () => _goToRecipePage(recipe),
+                        trailing: SizedBox(
+                          width: 50, // Set a specific width
+                          height: 50, // Set a specific height
+                          child: Image.network(
+                            recipe.imageUrls?.first ?? '',
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                } else {
+                  return const Text('No saved recipes found.');
+                }
               },
-            );
-          } else {
-            return const Text('No saved recipes found.');
-          }
-        },
-      ),
+            ),
+          ),
+        ],
+    ),
     );
   }
+
 }

@@ -9,6 +9,7 @@ class UserData {
   String? email;
   List<String>? allergies;
   List<String>? savedRecipes;
+  String? currentRecipe;
 
   // Private constructor
   UserData._privateConstructor();
@@ -21,7 +22,17 @@ class UserData {
     return _instance;
   }
 
-  void updateSavedRecipes(String recipeName, bool isSaved) {
+  Future<void> updateAllergies(List<String> allergies) async {
+    this.allergies = allergies;
+    FirebaseFirestore.instance.collection('users').where('email', isEqualTo: email).limit(1).get().then((querySnapshot) {
+      if (querySnapshot.docs.isNotEmpty) {
+        var documentSnapshot = querySnapshot.docs.first;
+        documentSnapshot.reference.update({'allergies': allergies});
+      }
+    });
+  }
+
+  Future<void> updateSavedRecipes(String recipeName, bool isSaved) async {
     if (isSaved) {
       savedRecipes ??= [];
       savedRecipes!.add(recipeName);
@@ -36,6 +47,16 @@ class UserData {
     });
   }
 
+  Future<void> updateName(String name) async {
+    this.name = name;
+    FirebaseFirestore.instance.collection('users').where('email', isEqualTo: email).limit(1).get().then((querySnapshot) {
+      if (querySnapshot.docs.isNotEmpty) {
+        var documentSnapshot = querySnapshot.docs.first;
+        documentSnapshot.reference.update({'name': name});
+      }
+    });
+  }
+
   Future<List<Recipe>> getSavedRecipes() async {
     List<Recipe> savedRecipes = [];
 
@@ -45,8 +66,9 @@ class UserData {
       if (this.savedRecipes?.contains(doc['name']) ?? false) {
         List<String> ingredients = List<String>.from(doc["ingredients"]);
         List<String> steps = List<String>.from(doc["steps"]);
+        List<String> imageUrls = List<String>.from(doc["imageUrls"]);
 
-        savedRecipes.add(Recipe(doc["name"], doc["description"], doc["cookingTime"], ingredients, steps));
+        savedRecipes.add(Recipe(doc["name"], doc["description"], doc["cookingTime"], ingredients, steps, imageUrls));
       }
     }
 

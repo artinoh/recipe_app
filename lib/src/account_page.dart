@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'login_page.dart';
 import 'user_data.dart';
 import '../utils/app_bar.dart';
+import '../utils/custom_button.dart';
 
 class AccountPage extends StatefulWidget {
   @override
@@ -23,19 +24,39 @@ class _AccountPageState extends State<AccountPage> {
     super.dispose();
   }
 
+  Future<void> _updateUserData() async {
+    try {
+      await UserData().updateName(_nameController.text);
+      // Update other fields if you have more
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('User data updated'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     _nameController.text = UserData().name ?? '';
 
     return Scaffold(
       appBar: CustomAppBar(
-        title: 'Account',
+        title: '',
         showAccountButton: false,
         showLogoutButton: true,
         showSavedRecipesButton: true,
         showBackButton: true,
-        toggleSavedButton: false,
-        onToggleSaved: () {},
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
@@ -44,7 +65,14 @@ class _AccountPageState extends State<AccountPage> {
           child: ListView(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                padding: const EdgeInsets.symmetric(vertical: 2.0),
+                child: Text(
+                  'Account',
+                  style: Theme.of(context).textTheme.headline6,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2.0),
                 child: Text(
                   auth.currentUser!.email!,
                   style: Theme.of(context).textTheme.headline6,
@@ -59,11 +87,9 @@ class _AccountPageState extends State<AccountPage> {
               ),
               const SizedBox(height: 16.0),
               SizedBox(height: 24.0),
-              ElevatedButton(
-                onPressed: () {
-                  print('Updating details');
-                },
-                child: const Text('Update Details'),
+              CustomButton(
+                text: 'Save',
+                onPressed: _updateUserData
               ),
               Divider(),
               const ListTile(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'src/login_page.dart';
+import 'src/splash_page.dart';
 
 
 void main() async {
@@ -22,9 +22,10 @@ class MyApp extends StatelessWidget {
       title: 'Crave',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.pink),
+        fontFamily: 'Lato',
         useMaterial3: true,
       ),
-      home: const LoginPage(title: 'Crave: Login'),
+      home: SplashPage(),
 
     );
   }

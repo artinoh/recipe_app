@@ -8,6 +8,7 @@ import 'recipe_page.dart';
 import 'saved_recipes_page.dart';
 import 'user_data.dart';
 import '../utils/app_bar.dart';
+import '../utils/custom_button.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key, required this.title});
@@ -73,8 +74,9 @@ class _SearchPageState extends State<SearchPage> {
         for (var doc in querySnapshot.docs) {
           List<String> ingredients = List<String>.from(doc["ingredients"]);
           List<String> steps = List<String>.from(doc["steps"]);
+          List<String> imageUrls = List<String>.from(doc["imageUrls"]);
 
-          _searchResults.add(Recipe(doc["name"], doc["description"], doc["cookingTime"], ingredients, steps));
+          _searchResults.add(Recipe(doc["name"], doc["description"], doc["cookingTime"], ingredients, steps, imageUrls));
         }
       });
 
@@ -96,9 +98,9 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  bool _updateSearchTerms() {
+  Future<void> _updateSearchTerms() async {
     if (_searchController.text.isEmpty) {
-      return false;
+      return;
     }
 
     setState(() {
@@ -106,7 +108,6 @@ class _SearchPageState extends State<SearchPage> {
       _searchController.clear();
     });
 
-    return true;
   }
 
   void _removeSearchTerm(String term) {
@@ -121,7 +122,7 @@ class _SearchPageState extends State<SearchPage> {
     });
   }
 
-  void _clearSearch() {
+  Future<void> _clearSearch() async {
     setState(() {
       _searchTerms.clear();
       _searchResults.clear();
@@ -154,10 +155,11 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        title: widget.title,
+        title: '',
         showAccountButton: true,
         showSavedRecipesButton: true,
         showLogoutButton: true,
+        showAddRecipeButton: true,
       ),
       body: Column(
         children: [
@@ -167,7 +169,7 @@ class _SearchPageState extends State<SearchPage> {
               controller: _searchController, // Use the controller here
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
-                labelText: 'Search for a Recipe',
+                labelText: 'Search for an Ingredient',
               ),
               onSubmitted: (value) {
                 setState(() {
@@ -180,48 +182,57 @@ class _SearchPageState extends State<SearchPage> {
           Wrap(
             spacing: 6.0,
             children: _searchTerms.map((term) => Chip(
-              label: Text(term),
+              shape: RoundedRectangleBorder(
+                side: BorderSide(color: Colors.pink),
+                borderRadius: BorderRadius.circular(0),
+              ),
+              label: Text(term, style: TextStyle(fontSize: 12)),
               onDeleted: () => _removeSearchTerm(term),
             )).toList(),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                onPressed:() => _updateSearchTerms(),
-                child: const Text(
-                  'Search',
-                  style: TextStyle(fontSize: 12),
-                ),
-              ),
-              ElevatedButton(
-                onPressed:() => _clearSearch(),
-                child: const Text(
-                  'Clear',
-                  style: TextStyle(fontSize: 12),
-                ),
-              ),
-            ],
-          ),
+          const Divider(),
           Expanded(
             child: ListView.builder(
               itemCount: _searchResults.length,
               itemBuilder: (context, index) {
+                var imageUrls = _searchResults[index].getImageUrls();
+                Widget trailingWidget = const SizedBox.shrink();
+                if (imageUrls.isNotEmpty) {
+                  trailingWidget = Image.network(
+                    imageUrls.first,
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                  );
+                }
                 return ListTile(
                   title: Text(_searchResults[index].name),
                   subtitle: Text(_searchResults[index].description),
                   onTap: () => displayRecipe(_searchResults[index]),
+                  trailing: trailingWidget,
                 );
               },
             ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _goToAddRecipe(),
-        tooltip: 'Add Recipe',
-        backgroundColor: Colors.pink,
-        child: const Icon(Icons.add),
+      bottomNavigationBar: BottomAppBar(
+        elevation: 0,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            CustomButton(
+              onPressed: () => _updateSearchTerms(),
+              text: 'Search',
+              buttonWidth: 150,
+            ),
+            CustomButton(
+              onPressed: () => _clearSearch(),
+              text: 'Clear',
+              buttonWidth: 150,
+            ),
+          ],
+        ),
       ),
     );
   }

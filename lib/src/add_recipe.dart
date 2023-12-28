@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../utils/app_bar.dart';
+import '../utils/custom_button.dart';
 
 class AddRecipePage extends StatefulWidget {
   @override
@@ -31,7 +32,7 @@ class _AddRecipePageState extends State<AddRecipePage> {
     super.dispose();
   }
 
-  void _addNewField(List<TextEditingController> text_controller) {
+  Future<void> _addNewField(List<TextEditingController> text_controller) async {
     setState(() {
       text_controller.add(TextEditingController());
     });
@@ -55,7 +56,7 @@ class _AddRecipePageState extends State<AddRecipePage> {
   }
 
 
-  void _submitRecipe() async {
+  Future<void> _submitRecipe() async {
     setState(() {
 
       if (_nameController.text.isEmpty) {
@@ -164,15 +165,10 @@ class _AddRecipePageState extends State<AddRecipePage> {
                   ),
                 ...List.generate(_ingredientsControllers.length, (index) => _buildField( _ingredientsControllers, index, "Ingredients")),
                 Center(
-                  child: ElevatedButton(
+                  child: CustomButton(
+                    text: 'Add New Ingredient',
                     onPressed: () => _addNewField(_ingredientsControllers),
-                    style: ElevatedButton.styleFrom(
-                      primary: Theme.of(context).colorScheme.primary,
-                      onPrimary: Colors.white,
-                      padding: EdgeInsets.symmetric(horizontal: 4),
-                      alignment: Alignment.center,
-                    ),
-                    child: Text('Add New Ingredient'),
+                    buttonWidth: 150,
                   ),
                 ),
                 const Text('Steps:',
@@ -180,26 +176,19 @@ class _AddRecipePageState extends State<AddRecipePage> {
                 ),
                 ...List.generate(_stepsControllers.length, (index) => _buildField( _stepsControllers, index, "Step")),
                 Center(
-                  child: ElevatedButton(
+                  child: CustomButton(
+                    text: 'Add New Step',
                     onPressed: () => _addNewField(_stepsControllers),
-                    style: ElevatedButton.styleFrom(
-                      primary: Theme.of(context).colorScheme.primary,
-                      onPrimary: Colors.white,
-                      padding: EdgeInsets.symmetric(horizontal: 4),
-                      alignment: Alignment.center,
-                    ),
-                    child: Text('Add New Step'),
+                    buttonWidth: 150,
                   ),
                 ),
                 SizedBox(height: 5),
-                ElevatedButton(
-                  onPressed: () => _submitRecipe(),
-                  style: ElevatedButton.styleFrom(
-                    primary: Theme.of(context).colorScheme.primary,
-                    onPrimary: Colors.white,
-                    alignment: Alignment.center,
+                Center(
+                  child: CustomButton(
+                    text: 'Submit',
+                    onPressed: _submitRecipe,
+                    buttonWidth: 150,
                   ),
-                  child: Text('Submit Recipe'),
                 ),
               ],
             ),
