@@ -51,7 +51,11 @@ class _AddRecipePageState extends State<AddRecipePage> {
         .ref('uploads/')
         .child(DateTime.now().millisecondsSinceEpoch.toString());
 
-    firebase_storage.UploadTask uploadTask = ref.putFile(File(image.path));
+    firebase_storage.SettableMetadata metadata = firebase_storage.SettableMetadata(
+        contentType: 'image/jpeg',
+    );
+
+    firebase_storage.UploadTask uploadTask = ref.putFile(File(image.path), metadata);
 
     // Get URL
     final url = await (await uploadTask).ref.getDownloadURL();
